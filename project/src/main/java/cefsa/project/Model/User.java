@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package cefsa.project.Model;
 
 import jakarta.persistence.*;
@@ -23,15 +19,12 @@ public class User {
 
     // Relacionamento com os ativos favoritados pelo usuário
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-<<<<<<< HEAD
     private Set<AtivoFavorito> favoritos;
-=======
-    private Set<Ativo_Favorito> favoritos;
->>>>>>> 15d46159760c33366589129991c5cbb3784cc903
 
-    // Construtores, Getters e Setters
+    // Construtor
     public User() {}
 
+    // Getters e Setters
     public Long getId() {
         return id;
     }
@@ -56,19 +49,11 @@ public class User {
         this.senha = senha;
     }
 
-<<<<<<< HEAD
     public Set<AtivoFavorito> getFavoritos() {
         return favoritos;
     }
 
     public void setFavoritos(Set<AtivoFavorito> favoritos) {
-=======
-    public Set<Ativo_Favorito> getFavoritos() {
-        return favoritos;
-    }
-
-    public void setFavoritos(Set<Ativo_Favorito> favoritos) {
->>>>>>> 15d46159760c33366589129991c5cbb3784cc903
         this.favoritos = favoritos;
     }
 }
