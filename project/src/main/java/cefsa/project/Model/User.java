@@ -23,7 +23,11 @@ public class User {
 
     // Relacionamento com os ativos favoritados pelo usuário
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+<<<<<<< HEAD
     private Set<AtivoFavorito> favoritos;
+=======
+    private Set<Ativo_Favorito> favoritos;
+>>>>>>> 15d46159760c33366589129991c5cbb3784cc903
 
     // Construtores, Getters e Setters
     public User() {}
@@ -52,11 +56,19 @@ public class User {
         this.senha = senha;
     }
 
+<<<<<<< HEAD
     public Set<AtivoFavorito> getFavoritos() {
         return favoritos;
     }
 
     public void setFavoritos(Set<AtivoFavorito> favoritos) {
+=======
+    public Set<Ativo_Favorito> getFavoritos() {
+        return favoritos;
+    }
+
+    public void setFavoritos(Set<Ativo_Favorito> favoritos) {
+>>>>>>> 15d46159760c33366589129991c5cbb3784cc903
         this.favoritos = favoritos;
     }
 }

@@ -27,13 +27,18 @@
 		<url/>
 	</scm>
 	<properties>
+<<<<<<< HEAD
 		<java.version>21</java.version>
+=======
+		<java.version>25</java.version>
+>>>>>>> 15d46159760c33366589129991c5cbb3784cc903
 	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jdbc</artifactId>
 		</dependency>
+<<<<<<< HEAD
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -41,6 +46,9 @@
         </dependency>
 
         <dependency>
+=======
+		<dependency>
+>>>>>>> 15d46159760c33366589129991c5cbb3784cc903
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
