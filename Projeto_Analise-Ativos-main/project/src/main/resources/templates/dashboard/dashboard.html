@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Trade Viewer - Dashboard</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0d1117;
+            color: #c9d1d9;
+            margin: 0;
+        }
+        header {
+            background: #161b22;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #30363d;
+        }
+        header h1 { margin: 0; font-size: 20px; color: #58a6ff; }
+        .logout-btn {
+            background: #21262d;
+            color: #c9d1d9;
+            border: 1px solid #30363d;
+            padding: 6px 12px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .card {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 20px;
+        }
+        .card h3 { margin-top: 0; border-bottom: 1px solid #30363d; padding-bottom: 10px; }
+        
+        /* Tabela Estilizada */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { text-align: left; padding: 8px; border-bottom: 1px solid #30363d; }
+        th { color: #8b949e; font-size: 12px; text-transform: uppercase; }
+        .positive { color: #3fb950; }
+        .negative { color: #f85149; }
+        
+        .ticker-badge {
+            background: #238636;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        :root {
+            --bg-color: #0d1117;
+            --card-bg: #161b22;
+            --border-color: #30363d;
+            --text-primary: #c9d1d9;
+            --text-secondary: #8b949e;
+            --accent-color: #58a6ff;
+            --success-color: #238636;
+            --danger-color: #da3633;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        header {
+            background-color: var(--card-bg);
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 22px;
+            color: var(--accent-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--accent-color);
+            padding-left: 15px;
+            color: #fff;
+        }
+
+        /* Grid Layout */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        /* Card Styles */
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            border-color: var(--accent-color);
+        }
+
+        .currency-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            height: 100%;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .coin-name {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 180px;
+        }
+
+        .coin-pair {
+            font-size: 0.75rem;
+            color: var(--accent-color);
+            background: rgba(88, 166, 255, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .price-large {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 5px 0;
+            color: #f0f6fc;
+        }
+
+        .variation {
+            font-size: 0.9rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+
+        .positive { color: var(--success-color); }
+        .negative { color: var(--danger-color); }
+
+        .stats-row {
+            display: flex;
+            justify-content: space-between;
+            margin-top: auto;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .stat-col { display: flex; flex-direction: column; }
+        .stat-val { color: var(--text-primary); font-weight: 600; }
+
+        .logout-btn {
+            background-color: #21262d;
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .logout-btn:hover { background-color: #30363d; }
+
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Trade Viewer 📈</h1>
+    <div>
+        <span style="margin-right: 10px;">Bem-vindo</span>
+        <form th:action="@{/logout}" method="post" style="display: inline;">
+            <button type="submit" class="logout-btn">Sair</button>
+        </form>
+    </div>
+</header>
+
+<div class="container">
+    
+    <!-- Seção de Câmbio -->
+    <div style="margin-bottom: 20px;">
+        <h2>Câmbio & Crypto</h2>
+        <div class="grid">
+            <th:block th:if="${cambioData != null}">
+                <div class="card" th:each="entry : ${cambioData}" th:with="coin=${entry.value}">
+                    <!-- Link constrói par Ex: USD-BRL -->
+                        <div class="card-header">
+                            <span class="coin-name" th:text="${coin.name}" title="${coin.name}"></span>
+                            <span class="coin-pair" th:text="${coin.code} + '/' + ${coin.codein}"></span>
+                        </div>
+
+                        <div class="price-large">
+                            R$ <span th:text="${#numbers.formatDecimal(coin.bid, 1, 4)}"></span>
+                        </div>
+
+                        <!-- Variação (pctChange) -->
+                        <div class="variation"
+                             th:classappend="${coin.pctChange != null and #strings.contains(coin.pctChange, '-')} ? 'negative' : 'positive'">
+
+                            <span th:if="${!#strings.contains(coin.pctChange, '-')}">▲</span>
+                            <span th:if="${#strings.contains(coin.pctChange, '-')}">▼</span>
+
+                            <span th:text="${coin.pctChange} + '%'"></span>
+                        </div>
+
+                        <!-- Estatísticas do Dia (High/Low) -->
+                        <div class="stats-row">
+                            <div class="stat-col">
+                                <span>Mín (Dia)</span>
+                                <span class="stat-val" style="color: #da3633;" th:text="${#numbers.formatDecimal(coin.low, 1, 4)}"></span>
+                            </div>
+                            <div class="stat-col" style="text-align: right;">
+                                <span>Máx (Dia)</span>
+                                <span class="stat-val" style="color: #238636;" th:text="${#numbers.formatDecimal(coin.high, 1, 4)}"></span>
+                            </div>
+                        </div>
+                </div>
+            </th:block>
+            <th:block th:if="${cambioData1 != null}">
+                <div class="card" th:each="entry : ${cambioData1}" th:with="coin=${entry.value}">
+                    <!-- Link constrói par Ex: USD-BRL -->
+                    <div class="card-header">
+                        <span class="coin-name" th:text="${coin.name}" title="${coin.name}"></span>
+                        <span class="coin-pair" th:text="${coin.code} + '/' + ${coin.codein}"></span>
+                    </div>
+
+                    <div class="price-large">
+                        R$ <span th:text="${#numbers.formatDecimal(coin.bid, 1, 4)}"></span>
+                    </div>
+
+                    <!-- Variação (pctChange) -->
+                    <div class="variation"
+                         th:classappend="${coin.pctChange != null and #strings.contains(coin.pctChange, '-')} ? 'negative' : 'positive'">
+
+                        <span th:if="${!#strings.contains(coin.pctChange, '-')}">▲</span>
+                        <span th:if="${#strings.contains(coin.pctChange, '-')}">▼</span>
+
+                        <span th:text="${coin.pctChange} + '%'"></span>
+                    </div>
+
+                    <!-- Estatísticas do Dia (High/Low) -->
+                    <div class="stats-row">
+                        <div class="stat-col">
+                            <span>Mín (Dia)</span>
+                            <span class="stat-val" style="color: #da3633;" th:text="${#numbers.formatDecimal(coin.low, 1, 4)}"></span>
+                        </div>
+                        <div class="stat-col" style="text-align: right;">
+                            <span>Máx (Dia)</span>
+                            <span class="stat-val" style="color: #238636;" th:text="${#numbers.formatDecimal(coin.high, 1, 4)}"></span>
+                        </div>
+                    </div>
+                </div>
+            </th:block>
+
+            <th:block th:if="${cambioData2 != null}">
+                <div class="card" th:each="entry : ${cambioData2}" th:with="coin=${entry.value}">
+                    <!-- Link constrói par Ex: USD-BRL -->
+                    <div class="card-header">
+                        <span class="coin-name" th:text="${coin.name}" title="${coin.name}"></span>
+                        <span class="coin-pair" th:text="${coin.code} + '/' + ${coin.codein}"></span>
+                    </div>
+
+                    <div class="price-large">
+                        R$ <span th:text="${#numbers.formatDecimal(coin.bid, 1, 4)}"></span>
+                    </div>
+
+                    <!-- Variação (pctChange) -->
+                    <div class="variation"
+                         th:classappend="${coin.pctChange != null and #strings.contains(coin.pctChange, '-')} ? 'negative' : 'positive'">
+
+                        <span th:if="${!#strings.contains(coin.pctChange, '-')}">▲</span>
+                        <span th:if="${#strings.contains(coin.pctChange, '-')}">▼</span>
+
+                        <span th:text="${coin.pctChange} + '%'"></span>
+                    </div>
+
+                    <!-- Estatísticas do Dia (High/Low) -->
+                    <div class="stats-row">
+                        <div class="stat-col">
+                            <span>Mín (Dia)</span>
+                            <span class="stat-val" style="color: #da3633;" th:text="${#numbers.formatDecimal(coin.low, 1, 4)}"></span>
+                        </div>
+                        <div class="stat-col" style="text-align: right;">
+                            <span>Máx (Dia)</span>
+                            <span class="stat-val" style="color: #238636;" th:text="${#numbers.formatDecimal(coin.high, 1, 4)}"></span>
+                        </div>
+                    </div>
+                </div>
+            </th:block>
+
+            <!-- Fallback caso não haja dados -->
+            <div th:if="${cambioData == null && cambioData1 == null && cambioData2 == null}" class="card">
+                <p style="color: var(--text-secondary);">Carregando dados ou serviço indisponível...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Seção de Ações -->
+    <div style="margin-top: 50px;">
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 class="section-title" style="margin-bottom: 0;">Ações em Destaque</h2>
+            <!-- Botão para acessar Commodities -->
+            <a href="/commodities" style="color: #d29922; text-decoration: none; font-weight: bold; border: 1px solid #d29922; padding: 8px 16px; border-radius: 6px;">
+                Ver Commodities & Índices →
+            </a>
+        </div>
+
+        <div class="grid">
+            <!-- Verifica se acoesData não é nulo e contém 'results' -->
+            <th:block th:if="${acoesData != null and acoesData.containsKey('results')}">
+                <div class="card" th:each="stock : ${acoesData.results}">
+
+                    <!-- 1. Dados de Imagem e Nome/Code -->
+                    <div class="stock-item-header">
+                        <img th:src="${stock.logourl}" alt="Logo" class="stock-logo"
+                             onerror="this.src='https://placehold.co/40x40/1e2a38/FFF?text=IMG'">
+                        <div class="stock-info">
+                            <h3 th:text="${stock.symbol}"></h3>
+                            <span th:text="${#strings.abbreviate(stock.shortName, 20)}"></span>
+                        </div>
+                    </div>
+
+                    <!-- 2. Preço Mais Recente -->
+                    <div class="price-large">
+                        R$ <span th:text="${#numbers.formatDecimal(stock.regularMarketPrice, 1, 2)}"></span>
+                    </div>
+
+                    <!-- 3. Variação -->
+                    <div class="variation"
+                         th:classappend="${stock.regularMarketChangePercent < 0} ? 'negative' : 'positive'">
+                        <span th:if="${stock.regularMarketChangePercent >= 0}">▲</span>
+                        <span th:if="${stock.regularMarketChangePercent < 0}">▼</span>
+                        <span th:text="${#numbers.formatDecimal(stock.regularMarketChangePercent, 1, 2)} + '%'"></span>
+                    </div>
+
+                    <!-- 4. Link com texto "detalhes" -->
+                    <a href="/details/historical/PETR4" class="details-btn">
+                        Detalhes
+                    </a>
+                </div>
+            </th:block>
+
+            <th:block th:if="${acoesDataVALE3 != null and acoesDataVALE3.containsKey('results')}">
+                <div class="card" th:each="stock : ${acoesDataVALE3.results}">
+
+                    <!-- 1. Dados de Imagem e Nome/Code -->
+                    <div class="stock-item-header">
+                        <img th:src="${stock.logourl}" alt="Logo" class="stock-logo"
+                             onerror="this.src='https://placehold.co/40x40/1e2a38/FFF?text=IMG'">
+                        <div class="stock-info">
+                            <h3 th:text="${stock.symbol}"></h3>
+                            <span th:text="${#strings.abbreviate(stock.shortName, 20)}"></span>
+                        </div>
+                    </div>
+
+                    <!-- 2. Preço Mais Recente -->
+                    <div class="price-large">
+                        R$ <span th:text="${#numbers.formatDecimal(stock.regularMarketPrice, 1, 2)}"></span>
+                    </div>
+
+                    <!-- 3. Variação -->
+                    <div class="variation"
+                         th:classappend="${stock.regularMarketChangePercent < 0} ? 'negative' : 'positive'">
+                        <span th:if="${stock.regularMarketChangePercent >= 0}">▲</span>
+                        <span th:if="${stock.regularMarketChangePercent < 0}">▼</span>
+                        <span th:text="${#numbers.formatDecimal(stock.regularMarketChangePercent, 1, 2)} + '%'"></span>
+                    </div>
+
+                    <!-- 4. Link com texto "detalhes" -->
+                    <a href="/details/historical/VALE3" class="details-btn">
+                        Detalhes
+                    </a>
+                </div>
+            </th:block>
+
+            <th:block th:if="${acoesDataITUB4 != null and acoesDataITUB4.containsKey('results')}">
+                <div class="card" th:each="stock : ${acoesDataITUB4.results}">
+
+                    <!-- 1. Dados de Imagem e Nome/Code -->
+                    <div class="stock-item-header">
+                        <img th:src="${stock.logourl}" alt="Logo" class="stock-logo"
+                             onerror="this.src='https://placehold.co/40x40/1e2a38/FFF?text=IMG'">
+                        <div class="stock-info">
+                            <h3 th:text="${stock.symbol}"></h3>
+                            <span th:text="${#strings.abbreviate(stock.shortName, 20)}"></span>
+                        </div>
+                    </div>
+
+                    <!-- 2. Preço Mais Recente -->
+                    <div class="price-large">
+                        R$ <span th:text="${#numbers.formatDecimal(stock.regularMarketPrice, 1, 2)}"></span>
+                    </div>
+
+                    <!-- 3. Variação -->
+                    <div class="variation"
+                         th:classappend="${stock.regularMarketChangePercent < 0} ? 'negative' : 'positive'">
+                        <span th:if="${stock.regularMarketChangePercent >= 0}">▲</span>
+                        <span th:if="${stock.regularMarketChangePercent < 0}">▼</span>
+                        <span th:text="${#numbers.formatDecimal(stock.regularMarketChangePercent, 1, 2)} + '%'"></span>
+                    </div>
+
+                    <!-- 4. Link com texto "detalhes" -->
+                    <a href="/details/historical/ITUB4" class="details-btn">
+                        Detalhes
+                    </a>
+                </div>
+            </th:block>
+
+            <!-- Fallback caso a lista esteja vazia -->
+            <div th:if="${acoesData == null or !acoesData.containsKey('results')}" class="card" style="grid-column: 1 / -1; text-align: center;">
+                <p style="color: var(--text-secondary);">Nenhuma ação disponível no momento.</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

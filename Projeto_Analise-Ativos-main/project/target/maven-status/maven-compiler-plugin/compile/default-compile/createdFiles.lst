@@ -1,0 +1,4 @@
+cefsa\project\Model\AtivoFavorito.class
+cefsa\project\controller\AtivosController.class
+cefsa\project\config\RestConfig.class
+cefsa\project\service\BrapiService.class

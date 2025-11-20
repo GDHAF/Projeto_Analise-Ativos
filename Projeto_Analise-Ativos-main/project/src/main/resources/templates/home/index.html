@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Projeto – Análise de Ativos</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            color: #333;
+        }
+
+        header {
+            background: #1e2a38;
+            padding: 20px;
+            color: white;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            margin-top: 0;
+        }
+
+        .cards {
+            display: flex;
+            gap: 20px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        .card {
+            flex: 1;
+            min-width: 260px;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border-color: #1e2a38;
+        }
+
+        .card h3 {
+            margin-top: 0;
+            color: #1e2a38;
+        }
+
+        footer {
+            margin-top: 40px;
+            text-align: center;
+            padding: 20px;
+            background: #1e2a38;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Sistema de Análise de Ativos Financeiros</h1>
+</header>
+
+<div class="container">
+
+    <h2>Bem-vindo!</h2>
+    <p>
+        Este sistema consulta uma API externa e exibe informações financeiras, permitindo análise resumida
+        de ativos, indicadores, valores históricos e dados de mercado.
+        Escolha uma das opções abaixo para começar:
+    </p>
+
+    <div class="cards">
+        <div class="card" onclick="window.location.href='/ativos/listar'">
+            <h3>📊 Consultar Ativos</h3>
+            <p>Veja lista de ativos, preços atuais e informações importantes trazidas pela API.</p>
+        </div>
+
+        <div class="card" onclick="window.location.href='/ativos/buscar'">
+            <h3>🔍 Buscar por Código</h3>
+            <p>Digite um ticker (ex: PETR4, VALE3, AAPL) e busque dados em tempo real.</p>
+        </div>
+
+        <div class="card" onclick="window.location.href='/relatorios'">
+            <h3>📈 Relatórios</h3>
+            <p>Acompanhe gráficos e análises dos dados coletados pela aplicação.</p>
+        </div>
+    </div>
+
+</div>
+
+<footer>
+    Projeto Acadêmico – Análise de Ativos • Desenvolvido com Spring Boot
+</footer>
+
+</body>
+</html>
