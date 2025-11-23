@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Dashboard</title>
+
+    <style>
+        /* Estilos CSS do TEMA ESCURO (COMPLETO) */
+        :root {
+            --bg-color: #1a1a2e;
+            --card-color: #2c2c44;
+            --text-color: #ffffff;
+            --input-bg: #3a3a55;
+            --button-color: #00bcd4; /* Azul/Ciano */
+            --button-hover: #00acc1;
+            --error-color: #ff5252;
+            --link-color: #58a6ff;
+            --border-radius: 8px;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--bg-color); /* Fundo Escuro */
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .login-container {
+            background-color: var(--card-color); /* Fundo do Card Escuro */
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            width: 100%;
+            max-width: 380px;
+            text-align: center;
+        }
+
+        .login-container h2 {
+            margin-bottom: 25px;
+            color: var(--text-color);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: var(--border-radius);
+            background-color: var(--input-bg); /* Fundo do Input Escuro */
+            color: var(--text-color);
+            box-sizing: border-box;
+        }
+
+        .error-message {
+            color: var(--error-color);
+            background-color: #3b1a1a;
+            padding: 10px;
+            border-radius: var(--border-radius);
+            margin-bottom: 15px;
+            border: 1px solid var(--error-color);
+            font-size: 0.9em;
+        }
+
+        .logout-message {
+            color: #00bcd4;
+            background-color: #1a3e3e;
+            padding: 10px;
+            border-radius: var(--border-radius);
+            margin-bottom: 15px;
+            border: 1px solid #00bcd4;
+            font-size: 0.9em;
+        }
+
+
+        button[type="submit"] {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: var(--border-radius);
+            background-color: var(--button-color);
+            color: var(--card-color);
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button[type="submit"]:hover {
+            background-color: var(--button-hover);
+        }
+
+        /* Estilo para o link de cadastro (seu código original) */
+        .register-link-container {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid var(--input-bg);
+            font-size: 0.95em;
+            color: var(--text-secondary);
+        }
+
+        .register-link-container a {
+            color: var(--link-color);
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .register-link-container a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+
+    <h2>🔑 Login</h2>
+
+    <div th:if="${loginError}" class="error-message">
+        <span th:text="${loginError}">Erro: Usuário ou senha incorretos.</span>
+    </div>
+    <div th:if="${logoutMessage}" class="logout-message">
+        <span th:text="${logoutMessage}">Sessão encerrada.</span>
+    </div>
+    <div th:if="${successMessage}" class="logout-message" style="background-color: #1a3e3e; color: #3fb950; border-color: #3fb950;">
+        <span th:text="${successMessage}"></span>
+    </div>
+
+    <form method="post" th:action="@{/login}">
+        <div class="form-group">
+            <label for="username">Usuário</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Senha</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+
+        <button type="submit">Entrar</button>
+    </form>
+
+    <div class="register-link-container">
+        Não tem uma conta?
+        <a th:href="@{/register}">Crie sua conta aqui!</a>
+    </div>
+
+</div>
+
+</body>
+</html>

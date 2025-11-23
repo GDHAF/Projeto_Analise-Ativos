@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Trade Viewer - Dashboard</title>
+    <style>
+        /* Variáveis de Tema (Definidas uma única vez) */
+        :root {
+            --bg-color: #0d1117;
+            --card-bg: #161b22;
+            --border-color: #30363d;
+            --text-primary: #c9d1d9;
+            --text-secondary: #8b949e;
+            --accent-color: #58a6ff;
+            --commodity-color: #d29922;
+            --success-color: #238636;
+            --danger-color: #da3633;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        /* --- Header --- */
+        header {
+            background-color: var(--card-bg);
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 22px;
+            color: var(--accent-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Botão Sair/Logout */
+        .logout-btn {
+            background-color: #21262d;
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+            text-decoration: none;
+        }
+        .logout-btn:hover { background-color: #30363d; }
+
+        /* --- Layout Geral --- */
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--accent-color);
+            padding-left: 15px;
+            color: #fff;
+        }
+
+        /* Grid Layout */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        /* Card Styles */
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            border-color: var(--accent-color);
+        }
+
+        /* --- Estilos de Câmbio/Crypto --- */
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .coin-name {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 180px;
+        }
+
+        .coin-pair {
+            font-size: 0.75rem;
+            color: var(--accent-color);
+            background: rgba(88, 166, 255, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .price-large {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 5px 0;
+            color: #f0f6fc;
+        }
+
+        .variation {
+            font-size: 0.9rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+
+        .positive { color: var(--success-color); }
+        .negative { color: var(--danger-color); }
+
+        .stats-row {
+            display: flex;
+            justify-content: space-between;
+            margin-top: auto;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .stat-col { display: flex; flex-direction: column; }
+        .stat-val { color: var(--text-primary); font-weight: 600; }
+
+        /* --- Estilos de Ações (Stocks) --- */
+        .stock-item-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            gap: 15px;
+        }
+        .stock-logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #21262d;
+            padding: 2px;
+        }
+        .stock-info h3 {
+            margin: 0;
+            font-size: 1.2rem;
+            color: #fff;
+        }
+        .stock-info span {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .details-btn {
+            display: block;
+            margin-top: 15px;
+            padding: 10px;
+            text-align: center;
+            background-color: #30363d;
+            color: var(--text-primary);
+            border-radius: 6px;
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+        .details-btn:hover {
+            background-color: var(--accent-color);
+            color: var(--card-bg);
+            font-weight: bold;
+        }
+
+        /* --- Links de Navegação Principal --- */
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .dashboard-link {
+            text-decoration: none;
+            font-weight: bold;
+            padding: 10px 18px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+            font-size: 0.95rem;
+        }
+        .dashboard-link.default {
+            background-color: var(--border-color);
+            color: var(--text-primary);
+        }
+        .dashboard-link.default:hover {
+            background-color: #3d424b;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Trade Viewer - <span th:text="${user}"></span></h1>
+    <div>
+        <form th:action="@{/logout}" method="post" style="display: inline;">
+            <button type="submit" class="logout-btn">Sair</button>
+        </form>
+    </div>
+</header>
+
+<div class="container">
+
+    <div class="nav-links">
+        <a th:href="@{/commodities}" class="dashboard-link default">
+            📈 Ver Commodities & Índices
+        </a>
+
+        <a th:href="@{/favorites}" class="dashboard-link" style="background-color: var(--commodity-color); color: var(--card-bg);">
+            ⭐ Meus Ativos Favoritos
+            (<span th:text="${favoritosCount}">0</span>)
+        </a>
+    </div>
+
+    <div style="margin-top: 50px;">
+        <h2 class="section-title">Câmbio & Crypto</h2>
+        <div class="grid">
+
+            <th:block th:each="cambioEntry : ${combinedCambio}">
+                <th:block th:if="${cambioEntry != null}">
+                    <div class="card" th:each="entry : ${cambioEntry}" th:with="coin=${entry.value}">
+                        <div>
+                            <div class="card-header">
+                                <span class="coin-name" th:text="${coin.name}"></span>
+                                <span class="coin-pair" th:text="${coin.code} + '/' + ${coin.codein}"></span>
+                            </div>
+
+                            <div class="price-large">
+                                R$ <span th:text="${#numbers.formatDecimal(coin.bid ?: 0, 1, 4)}"></span>
+                            </div>
+
+                            <div class="variation"
+                                 th:classappend="${#strings.contains(coin.pctChange ?: '0', '-')} ? 'negative' : 'positive'">
+
+                                <span th:if="${!#strings.contains(coin.pctChange ?: '0', '-')}">▲</span>
+                                <span th:if="${#strings.contains(coin.pctChange ?: '0', '-')}">▼</span>
+
+                                <span th:text="${#numbers.formatDecimal(coin.pctChange ?: 0, 1, 2)} + '%'"></span>
+                            </div>
+
+                            <div class="stats-row">
+                                <div class="stat-col">
+                                    <span>Mín (Dia)</span>
+                                    <span class="stat-val negative" th:text="${#numbers.formatDecimal(coin.low ?: 0, 1, 4)}"></span>
+                                </div>
+                                <div class="stat-col" style="text-align: right;">
+                                    <span>Máx (Dia)</span>
+                                    <span class="stat-val positive" th:text="${#numbers.formatDecimal(coin.high ?: 0, 1, 4)}"></span>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </th:block>
+            </th:block>
+
+            <div th:if="${combinedCambio.isEmpty()}" class="card" style="grid-column: 1 / -1; text-align: center;">
+                <p style="color: var(--text-secondary);">Carregando dados ou serviço indisponível...</p>
+            </div>
+        </div>
+    </div>
+
+
+    <div style="margin-top: 50px;">
+        <h2 class="section-title">Ações em Destaque</h2>
+
+        <div class="grid">
+            <th:block th:each="data : ${combinedAcoes}">
+                <th:block th:if="${data != null and data.containsKey('results')}">
+                    <div class="card" th:each="stock : ${data.results}">
+
+                        <a th:href="@{/details/historical/{symbol}(symbol=${stock.symbol})}" style="text-decoration: none; color: inherit; display: block; height: 100%;">
+
+                            <div class="stock-item-header">
+                                <img th:src="${stock.logourl}" alt="Logo" class="stock-logo"
+                                     onerror="this.src='https://placehold.co/40x40/1e2a38/FFF?text=IMG'">
+                                <div class="stock-info">
+                                    <h3 th:text="${stock.symbol}"></h3>
+                                    <span th:text="${#strings.abbreviate(stock.shortName ?: 'N/D', 20)}"></span>
+                                </div>
+                            </div>
+
+                            <div class="price-large">
+                                R$ <span th:text="${#numbers.formatDecimal(stock.regularMarketPrice ?: 0, 1, 2)}"></span>
+                            </div>
+
+                            <div class="variation"
+                                 th:classappend="${stock.regularMarketChangePercent ?: 0 < 0} ? 'negative' : 'positive'">
+
+                                <span th:if="${stock.regularMarketChangePercent ?: 0 >= 0}">▲</span>
+                                <span th:if="${stock.regularMarketChangePercent ?: 0 < 0}">▼</span>
+                                <span th:text="${#numbers.formatDecimal(stock.regularMarketChangePercent ?: 0, 1, 2)} + '%'"></span>
+                            </div>
+
+                            <div class="details-btn">
+                                Detalhes
+                            </div>
+                        </a>
+                    </div>
+                </th:block>
+            </th:block>
+
+            <div th:if="${combinedAcoes.isEmpty()}" class="card" style="grid-column: 1 / -1; text-align: center;">
+                <p style="color: var(--text-secondary);">Nenhuma ação disponível no momento.</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

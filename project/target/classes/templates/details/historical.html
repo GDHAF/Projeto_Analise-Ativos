@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Detalhes do Ativo</title>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --card-bg: #161b22;
+            --border-color: #30363d;
+            --text-primary: #c9d1d9;
+            --text-secondary: #8b949e;
+            --accent-color: #58a6ff;
+            --success-color: #238636;
+            --danger-color: #da3633;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .back-link {
+            color: var(--accent-color);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        .back-link:hover { text-decoration: underline; }
+
+        /* Header Section */
+        .stock-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 25px;
+        }
+
+        .stock-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .stock-logo {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #fff;
+            padding: 5px;
+            object-fit: contain;
+        }
+
+        .stock-title h1 { margin: 0; font-size: 2rem; color: #fff; }
+        .stock-title span { color: var(--text-secondary); font-size: 1.1rem; }
+
+        .stock-price { text-align: right; }
+        .current-price { font-size: 2.5rem; font-weight: 700; color: #fff; }
+        .price-change { font-size: 1.1rem; font-weight: 600; padding: 4px 8px; border-radius: 6px; display: inline-block; }
+        .bg-positive { background: rgba(35, 134, 54, 0.2); color: #3fb950; }
+        .bg-negative { background: rgba(218, 54, 51, 0.2); color: #f85149; }
+
+        /* Grid Layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 25px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            height: fit-content;
+        }
+
+        .card h3 { margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; color: var(--accent-color); }
+
+        /* Stats Grid inside Card */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .stat-item { display: flex; flex-direction: column; gap: 5px; }
+        .stat-label { color: var(--text-secondary); font-size: 0.9rem; }
+        .stat-value { color: #fff; font-weight: 600; font-size: 1.1rem; }
+
+        /* Historical Table */
+        .table-container {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        th { position: sticky; top: 0; background: var(--card-bg); text-align: left; color: var(--text-secondary); padding: 10px; border-bottom: 2px solid var(--border-color); }
+        td { padding: 10px; border-bottom: 1px solid var(--border-color); color: var(--text-primary); }
+        tr:hover { background: rgba(255,255,255,0.02); }
+
+        @media (max-width: 900px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <a href="/dashboard/dash" class="back-link">← Voltar ao Dashboard</a>
+
+    <!-- Verifica se temos dados e acessa o primeiro item de 'results' -->
+    <div th:if="${stockData != null and stockData.containsKey('results')}" th:with="stock=${stockData.results[0]}">
+
+        <!-- Cabeçalho do Ativo -->
+        <div class="stock-header">
+            <div class="stock-info">
+                <!-- Logo com fallback -->
+                <img th:src="${stock.logourl}" alt="Logo" class="stock-logo" onerror="this.style.display='none'">
+                <div class="stock-title">
+                    <h1 th:text="${stock.symbol}"></h1>
+                    <span th:text="${stock.longName}"></span>
+                </div>
+            </div>
+            <div class="stock-price">
+                <div class="current-price" th:text="'R$ ' + ${stock.regularMarketPrice}">R$ 32.82</div>
+
+                <div class="price-change"
+                     th:classappend="${stock.regularMarketChangePercent >= 0} ? 'bg-positive' : 'bg-negative'">
+                    <span th:text="${stock.regularMarketChangePercent >= 0 ? '▲' : '▼'}"></span>
+                    <span th:text="${#numbers.formatDecimal(stock.regularMarketChangePercent, 1, 2)} + '%'"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Coluna Esquerda: Gráfico e Tabela Histórica -->
+            <div>
+                <!-- Gráfico -->
+                <div class="card" style="margin-bottom: 25px; height: 400px;">
+                    <h3>Histórico de Preços (1 Ano)</h3>
+                    <canvas id="stockChart"></canvas>
+                </div>
+
+                <!-- Tabela Histórica (Scrollable) -->
+                <div class="card">
+                    <h3>Dados Históricos Recentes</h3>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Fechamento</th>
+                                <th>Abertura</th>
+                                <th>Máxima</th>
+                                <th>Mínima</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <!-- Itera sobre o array 'historicalDataPrice' do JSON -->
+                            <tr th:each="history : ${stock.historicalDataPrice}">
+                                <!-- Formata timestamp (segundos) para data legível -->
+                                <td class="date-cell" th:data-timestamp="${history.date}"></td>
+                                <td th:text="'R$ ' + ${history.close}"></td>
+                                <td th:text="${history.open}"></td>
+                                <td style="color: #3fb950;" th:text="${history.high}"></td>
+                                <td style="color: #da3633;" th:text="${history.low}"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Coluna Direita: Indicadores Fundamentais -->
+            <div class="card">
+                <h3>Indicadores de Mercado</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span class="stat-label">Range do Dia</span>
+                        <span class="stat-value" th:text="${stock.regularMarketDayRange}"></span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Range 52 Semanas</span>
+                        <span class="stat-value" th:text="${stock.fiftyTwoWeekRange}"></span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Valor de Mercado</span>
+                        <!-- Javascript irá formatar este número grande -->
+                        <span class="stat-value market-cap" th:text="${stock.marketCap}"></span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Volume</span>
+                        <span class="stat-value volume-val" th:text="${stock.regularMarketVolume}"></span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">P/L (P/E)</span>
+                        <span class="stat-value" th:text="${stock.priceEarnings != null ? #numbers.formatDecimal(stock.priceEarnings, 1, 2) : '-'}"></span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">LPA (EPS)</span>
+                        <span class="stat-value" th:text="${stock.earningsPerShare != null ? #numbers.formatDecimal(stock.earningsPerShare, 1, 2) : '-'}"></span>
+                    </div>
+                </div>
+
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border-color);">
+                    <span class="stat-label">Última Atualização</span>
+                    <div style="margin-top: 5px; color: #fff;" th:text="${stock.regularMarketTime}"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scripts para Gráficos e Formatação -->
+        <script th:inline="javascript">
+            document.addEventListener('DOMContentLoaded', function() {
+                /* 1. Preparação dos Dados do JSON para o Chart.js */
+                // Thymeleaf injeta o array JSON diretamente na variável JS
+                const historyData = /*[[${stock.historicalDataPrice}]]*/ [];
+
+                if (historyData && historyData.length > 0) {
+                    // Processa dados
+                    const labels = historyData.map(item => new Date(item.date * 1000).toLocaleDateString('pt-BR'));
+                    const prices = historyData.map(item => item.close);
+
+                    // Cria o Gráfico
+                    const ctx = document.getElementById('stockChart').getContext('2d');
+
+                    // Gradiente bonito
+                    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+                    gradient.addColorStop(0, 'rgba(88, 166, 255, 0.5)');
+                    gradient.addColorStop(1, 'rgba(88, 166, 255, 0.0)');
+
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Preço de Fechamento (R$)',
+                                data: prices,
+                                borderColor: '#58a6ff',
+                                backgroundColor: gradient,
+                                borderWidth: 2,
+                                pointRadius: 0, // Oculta pontos para linha limpa
+                                pointHoverRadius: 4,
+                                fill: true,
+                                tension: 0.1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            interaction: {
+                                intersect: false,
+                                mode: 'index',
+                            },
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    backgroundColor: '#161b22',
+                                    titleColor: '#8b949e',
+                                    bodyColor: '#fff',
+                                    borderColor: '#30363d',
+                                    borderWidth: 1
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    grid: { color: '#30363d' },
+                                    ticks: { color: '#8b949e' }
+                                },
+                                x: {
+                                    grid: { display: false },
+                                    ticks: {
+                                        color: '#8b949e',
+                                        maxTicksLimit: 10 // Evita poluição visual no eixo X
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+
+                /* 2. Formatação da Tabela e Números */
+
+                // Formata Datas na Tabela
+                document.querySelectorAll('.date-cell').forEach(td => {
+                    const ts = parseInt(td.getAttribute('data-timestamp'));
+                    if(ts) td.textContent = new Date(ts * 1000).toLocaleDateString('pt-BR');
+                });
+
+                // Formata Market Cap e Volume para "B" (Bilhões) ou "M" (Milhões)
+                const formatLargeNumber = (val) => {
+                    if(val >= 1.0e+9) return (val / 1.0e+9).toFixed(2) + " B";
+                    if(val >= 1.0e+6) return (val / 1.0e+6).toFixed(2) + " M";
+                    return val;
+                };
+
+                const mktCapEl = document.querySelector('.market-cap');
+                if(mktCapEl) mktCapEl.textContent = "R$ " + formatLargeNumber(parseFloat(mktCapEl.textContent.replace(/,/g, '')));
+
+                const volEl = document.querySelector('.volume-val');
+                if(volEl) volEl.textContent = formatLargeNumber(parseFloat(volEl.textContent.replace(/,/g, '')));
+            });
+        </script>
+
+    </div>
+
+    <!-- Fallback -->
+    <div th:if="${stockData == null}">
+        <h2>Dados do ativo não encontrados.</h2>
+    </div>
+</div>
+
+</body>
+</html>
